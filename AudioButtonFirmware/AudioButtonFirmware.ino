@@ -8,6 +8,10 @@
 #include <SD.h>
 #include <SerialFlash.h>
 
+#define PLAYBUTTON 2
+#define MODEBUTTON 3
+
+
 // GUItool: begin automatically generated code
 AudioInputI2S            i2s2;           //xy=105,63
 AudioAnalyzePeak         peak1;          //xy=278,108
@@ -22,8 +26,8 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=265,212
 // GUItool: end automatically generated code
 
 // Bounce objects to easily and reliably read the buttons
-Bounce buttonRecordAndStop = Bounce(0, 8);
-Bounce buttonPlay =   Bounce(1, 8);  // 8 = 8 ms debounce time
+Bounce buttonMode =  Bounce(MODEBUTTON, 8);
+Bounce buttonPlay =  Bounce(PLAYBUTTON, 8);  // 8 = 8 ms debounce time
 
 
 
@@ -58,14 +62,16 @@ String timeFromPC;
 
 void setup() {
 
-  // configure Serial
-  Serial.begin(115200);
+  // configure Serials
+  Serial.begin(115200);    // for console ouptut / USB
+
+  Serial1.begin(115200);   // for communication with ESP8266
+  Serial1.setTX(1);  
+  Serial1.setRX(0);  
 
   // Configure the pushbutton pins
-  pinMode(0, INPUT_PULLUP);
-  pinMode(1, INPUT_PULLUP);
-  pinMode(2, INPUT_PULLUP);
-
+  pinMode(PLAYBUTTON, INPUT_PULLUP);
+  pinMode(MODEBUTTON, INPUT_PULLUP);
 
   // Audio connections require memory, and the record queue
   // uses this memory to buffer incoming audio.
@@ -96,6 +102,14 @@ void setup() {
 void loop() {
 
   // send data only when you receive data:
+
+
+  while (Serial1.available() > 0)
+  {
+     Serial.write(Serial1.read());
+  }
+
+  
   if (Serial.available() > 0)
   {
     // read the incoming byte:
@@ -131,7 +145,7 @@ void loop() {
   }
 
   // First, read the buttons
-  buttonRecordAndStop.update();
+  buttonMode.update();
   buttonPlay.update();
 
   // Mode 1: record and play
@@ -141,7 +155,7 @@ void loop() {
     // Respond to button presses
 
     // RECORDING: Der geht, check
-    if (buttonRecordAndStop.fallingEdge()) {
+    if (buttonMode.fallingEdge()) {
       Serial.println("Record Button Press");
       if (mode == 2) stopPlaying();
       if (mode == 0) startRecording();
@@ -149,7 +163,7 @@ void loop() {
     }
 
     // Stop recording der geht
-    if (buttonRecordAndStop.risingEdge()) {
+    if (buttonMode.risingEdge()) {
       Serial.println("Stop Button Press");
       if (mode == 1) stopRecording();
       if (mode == 2) stopPlaying();
@@ -188,7 +202,7 @@ void loop() {
       SD.mkdir("/TIME");
     }
 
-    if (buttonRecordAndStop.fallingEdge())
+    if (buttonMode.fallingEdge())
     {
       Serial.println("Start recording noch 5 min");
       if (SD.exists("/TIME/5MINUTES.RAW")) {
@@ -209,7 +223,7 @@ void loop() {
         mode = 1;
       }
     }
-    if (buttonRecordAndStop.risingEdge())
+    if (buttonMode.risingEdge())
     {
       Serial.println("Released button record");
     }
