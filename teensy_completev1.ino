@@ -15,7 +15,7 @@ char receivedChars[numChars];   // an array to store the received data
 int programMode;  //0=record, 1=playRecorded, 2=playSelected
 String modus = "";
 char *selsong;
-String fileextension = ".wav";  //file extension for the selected song
+const char *fileextension = ".wav";  //file extension for the selected song
 
 int recmode = 0;    //needed for the record function
 unsigned long int timeLimit = 120000;    //this is where the rec time limit can be set in ms
@@ -66,7 +66,6 @@ void recvWithEndMarker() {
    
    while (HWSERIAL.available() > 0) {
         //Serial.println("entered");
-        HWSERIAL.println("from teensy message received");
         rc = HWSERIAL.read();
         if (rc != endMarker) {
            receivedChars[ndx] = rc;
@@ -77,13 +76,44 @@ void recvWithEndMarker() {
         else if (rc == endMarker && ndx > 0){
             receivedChars[ndx] = '\0'; // terminate the string
             ndx = 0;
+            Serial.println("Rec chars:");
+            Serial.println(receivedChars);
+            //if ((strcmp(receivedChars, "0")==0)||(strcmp(receivedChars, "1")==0)||(strcmp(receivedChars, "2")==0)){
+            
+            if (receivedChars[0] == '0'){
+              Serial.println("entered 0");
+              programMode = 0;
+              Serial.println("programModeInt = ");
+              Serial.println(programMode);
             }
-         if ((strcmp(receivedChars, "0")==0)||(strcmp(receivedChars, "1")==0)||(strcmp(receivedChars, "2")==0)){
-              modus = receivedChars;
-              programMode = modus.toInt();
-              Serial.println("programModeInt = " +programMode);
+            
+            else if(receivedChars[0] == '1'){
+              Serial.println("entered mode1");
+              programMode = 1;
+              Serial.println("programModeInt = ");
+              Serial.println(programMode);
               }
-} 
+            
+            else if(receivedChars[0] == '2'){
+              Serial.println("entered if bed mode2");
+              programMode = 2;
+              root=SD.open("/");
+              printFileList(root);
+              Serial.println(fileList);
+              HWSERIAL.println(fileList);
+              fileList="";
+            }
+            else{
+              Serial.println("entered else-bed");
+              selsong = receivedChars;
+              strcat(selsong, fileextension);
+              Serial.println(selsong);
+            }
+        }
+   } 
+}
+
+
         
 void printFileList(File dir){       
 while (true) {
