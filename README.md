@@ -8,7 +8,7 @@ This project aimed to enhance the functionality of an existing assistive button 
 <img src="images/AB_sequenceDiagram.jpg" width="500">
 
 ### Graphical User Interface
-For the GUI development, HTML/CSS and Javascript were deployed. 
+For the GUI development, HTML/CSS and Javascript were deployed. To make the created graphics available to the index page, they were loaded into the ESP´s SPIFFS.
 
 <img src="images/gui_finalversion.png" width="500">
 
