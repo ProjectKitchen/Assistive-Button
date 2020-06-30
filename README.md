@@ -9,6 +9,7 @@ This project aimed to enhance the functionality of an existing assistive button 
 
 ### Graphical User Interface
 For the GUI development, HTML/CSS and Javascript were deployed. 
+
 <img src="images/gui_finalversion.png" width="500">
 
 
